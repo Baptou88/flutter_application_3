@@ -69,7 +69,7 @@ class _MainPageState extends State<MainPage> {
 
     switch (selectedIndex) {
       case 0:
-        page = Text('Hello World! ${wideScreen.toString()}');
+        page = Text('Hello World! wideScreen:${wideScreen.toString()}');
         break;
       case 1:
         page = Modes(boxDecoration: boxDecoration);

@@ -29,4 +29,4 @@ jobs:
       with:
         files: build/app/outputs/flutter-apk/app-release.apk
       env:
-        GITHUB_TOKEN: ${{ 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 }}
+        GITHUB_TOKEN: ${{ secrets.flutter_apps3 }}
