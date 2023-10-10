@@ -1,0 +1,32 @@
+name: Build and Deploy Android
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v4
+      with:
+        flutter-version: '2.x' # Utilisez la version de Flutter que vous souhaitez
+
+    - name: Install dependencies
+      run: flutter pub get
+
+    - name: Build Android APK
+      run: flutter build apk
+
+    - name: Upload APK to GitHub release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/app/outputs/flutter-apk/app-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
