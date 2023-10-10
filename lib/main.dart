@@ -33,6 +33,7 @@ class _MainAppState extends State<MainApp> {
         ),
         themeMode: themeMode,
         darkTheme: ThemeData(colorScheme: const ColorScheme.dark()),
+        
         home: MainPage(
           themMode: setThemeMode,
         ));
