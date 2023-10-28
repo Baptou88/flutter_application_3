@@ -1,8 +1,13 @@
+import 'dart:convert';
 import 'dart:developer';
+
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/destinations.dart';
 import 'package:flutter_application_3/models/programmated_task.dart';
+
+import 'models/data_etang.dart';
 
 void main() {
   runApp(const MainApp());
@@ -20,7 +25,7 @@ class _MainAppState extends State<MainApp> {
 
   void setThemeMode(ThemeMode mode) {
     setState(() {
-      log("par là");
+      
       themeMode = mode;
     });
   }
@@ -48,16 +53,37 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => _MainPageState();
 }
 
+Future<DataEtang> fetchDataEtang() async {
+  final response = await http.get(
+    Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'
+    ));
+  //final response = await http.get(Uri.parse('http://192.168.1.18/dataEtang/'));
+  //final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+  log(response.statusCode.toString());
+  
+  if (response.statusCode == 200 ) {
+    return DataEtang.fromJson(jsonDecode(response.body) as Map<String,dynamic>);
+  } else {
+    throw Exception('Failed to Load data Etang');
+  }
+}
 class _MainPageState extends State<MainPage> {
   bool wideScreen = false;
   int selectedIndex = 0;
-
+  late Future<DataEtang> futureDataEtang;
+  
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final double width = MediaQuery.of(context).size.width;
     wideScreen = width > 600;
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    futureDataEtang = fetchDataEtang();
   }
 
   @override
@@ -70,7 +96,38 @@ class _MainPageState extends State<MainPage> {
 
     switch (selectedIndex) {
       case 0:
-        page = Text('Hello World ! wideScreen:${wideScreen.toString()}');
+        page = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('Hello World ! wideScreen:${wideScreen.toString()}'),
+            FutureBuilder<DataEtang>(
+              future: futureDataEtang,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Column(
+                    children: [
+                      Text(snapshot.data!.niveauEtangP.toString()),
+                      Text(snapshot.data!.niveauEtang.toString()),
+                      LinearProgressIndicator(
+                        value: snapshot.data!.niveauEtangP,
+                        semanticsLabel: 'Linear progress indicator',)
+                    ],
+                  );
+                } else if(snapshot.hasError){
+                  log('${snapshot.error}');
+                  
+                  return  Text('${snapshot.error}');
+                }
+                return const CircularProgressIndicator();
+              },
+            ),
+            ElevatedButton(onPressed: (){setState(() {
+              futureDataEtang = fetchDataEtang();
+            });}, 
+            child: const Text('refresh'))
+          ],
+        );
         break;
       case 1:
         page = Modes(boxDecoration: boxDecoration);
