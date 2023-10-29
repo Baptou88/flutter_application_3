@@ -14,7 +14,8 @@ on:
 # 4
 jobs:
   # 5
-  build:
+  #build:
+  release:
     # 6
     runs-on: ubuntu-latest
 
