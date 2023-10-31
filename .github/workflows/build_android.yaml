@@ -7,15 +7,16 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
+  release:
+    branches: [ "master" ]
   # 3
   workflow_dispatch:
 
 # 4
 jobs:
   # 5
-  #build:
-  release:
+  build:
+  #release:
     # 6
     runs-on: ubuntu-latest
 
