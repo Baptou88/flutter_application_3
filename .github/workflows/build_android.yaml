@@ -3,10 +3,10 @@ name: Android Release
 # 1
 on:
   # 2
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  # push:
+  #   branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
   release:
     branches: [ "master" ]
   # 3
@@ -49,3 +49,10 @@ jobs:
         with:
           name: release-apk
           path: build/app/outputs/apk/release/app-release.apk
+
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: build/app/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
