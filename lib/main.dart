@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'global.dart' as global;
 import 'package:flutter_application_3/models/data_turbine.dart';
 import 'package:http/http.dart' as http;
 
@@ -26,7 +26,6 @@ class _MainAppState extends State<MainApp> {
 
   void setThemeMode(ThemeMode mode) {
     setState(() {
-      
       themeMode = mode;
     });
   }
@@ -39,7 +38,6 @@ class _MainAppState extends State<MainApp> {
         ),
         themeMode: themeMode,
         darkTheme: ThemeData(colorScheme: const ColorScheme.dark()),
-        
         home: MainPage(
           themMode: setThemeMode,
         ));
@@ -55,38 +53,39 @@ class MainPage extends StatefulWidget {
 }
 
 Future<DataEtang> fetchDataEtang() async {
-  final response = await http.get(
-    Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'
-    ));
+  final response =
+      await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'));
 
   log(response.statusCode.toString());
-  
-  if (response.statusCode == 200 ) {
-    return DataEtang.fromJson(jsonDecode(response.body) as Map<String,dynamic>);
+
+  if (response.statusCode == 200) {
+    return DataEtang.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
   } else {
     throw Exception('Failed to Load data Etang');
   }
 }
+
 Future<DataTurbine> fetchDataTurbine() async {
-  final response = await http.get(
-    Uri.parse('http://hydro.hydro-babiat.ovh/dataTurbine/'
-    ));
+  final response =
+      await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataTurbine/'));
 
   log(response.statusCode.toString());
-  
-  if (response.statusCode == 200 ) {
-    return DataTurbine.fromJson(jsonDecode(response.body) as Map<String,dynamic>);
+
+  if (response.statusCode == 200) {
+    return DataTurbine.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
   } else {
     throw Exception('Failed to Load data Etang');
   }
 }
+
 class _MainPageState extends State<MainPage> {
   bool wideScreen = false;
   int selectedIndex = 0;
   late Future<DataEtang> futureDataEtang;
   late Future<DataTurbine> futureDataTurbine;
-  
-  
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -96,7 +95,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     futureDataEtang = fetchDataEtang();
     futureDataTurbine = fetchDataTurbine();
@@ -117,6 +116,19 @@ class _MainPageState extends State<MainPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text('Hello World ! wideScreen:${wideScreen.toString()}'),
+            const Divider(),
+            StreamBuilder(
+              stream: global.wsTest.channel.stream,
+              builder: (context,snapshot){
+                if (snapshot.hasData) {
+                  return Text(snapshot.data);
+                } else if (snapshot.hasError){
+                  return Text(snapshot.error.toString());
+                } else {
+                  return const Text('error ws');
+                }
+            }),
+            const Divider(),
             FutureBuilder<DataEtang>(
               future: futureDataEtang,
               builder: (context, snapshot) {
@@ -128,24 +140,27 @@ class _MainPageState extends State<MainPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: LinearProgressIndicator(
-                          value: snapshot.data!.niveauEtangP/100,
-                          semanticsLabel: 'Linear progress indicator',),
+                          value: snapshot.data!.niveauEtangP / 100,
+                          semanticsLabel: 'Linear progress indicator',
+                        ),
                       )
                     ],
                   );
-                } else if(snapshot.hasError){
+                } else if (snapshot.hasError) {
                   log('${snapshot.error}');
-                  
-                  return  Text('${snapshot.error}');
+
+                  return Text('${snapshot.error}');
                 }
                 return const CircularProgressIndicator();
               },
             ),
-            ElevatedButton(onPressed: (){setState(() {
-              futureDataEtang = fetchDataEtang();
-            });}, 
-            child: const Text('refresh')
-            ),
+            ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    futureDataEtang = fetchDataEtang();
+                  });
+                },
+                child: const Text('refresh')),
             FutureBuilder<DataTurbine>(
               future: futureDataTurbine,
               builder: (context, snapshot) {
@@ -157,37 +172,40 @@ class _MainPageState extends State<MainPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: LinearProgressIndicator(
-                          value: snapshot.data!.positionVanne/100,
-                          semanticsLabel: 'Linear progress indicator',),
+                          value: snapshot.data!.positionVanne / 100,
+                          semanticsLabel: 'Linear progress indicator',
+                        ),
                       ),
                       Slider(
-                        value: snapshot.data!.positionVanneTarget,
-                        divisions: 100,
-                        label: snapshot.data!.positionVanneTarget.toString(),
-                        min: 0,
-                        max: 100,
-                        onChanged: (double value){
-                        setState(() {
-                          snapshot.data!.positionVanneTarget = value;
-                        });
-                      })
+                          value: snapshot.data!.positionVanneTarget,
+                          divisions: 100,
+                          label: snapshot.data!.positionVanneTarget.toString(),
+                          min: 0,
+                          max: 100,
+                          onChanged: (double value) {
+                            setState(() {
+                              snapshot.data!.positionVanneTarget = value;
+                            });
+                          })
                     ],
                   );
-                } else if(snapshot.hasError){
+                } else if (snapshot.hasError) {
                   log('${snapshot.error}');
-                  
-                  return  Text('${snapshot.error}');
+
+                  return Text('${snapshot.error}');
                 }
                 return const CircularProgressIndicator();
               },
             ),
-            ElevatedButton(onPressed: (){setState(() {
-              futureDataTurbine = fetchDataTurbine();
-            });}, 
-            child: const Text('refresh turbine'))
+            ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    futureDataTurbine = fetchDataTurbine();
+                  });
+                },
+                child: const Text('refresh turbine')),
+            Text('ws ${global.ws}')
           ],
-          
-          
         );
         break;
       case 1:
@@ -211,13 +229,13 @@ class _MainPageState extends State<MainPage> {
     }
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
+        onPressed: () {
           setState(() {
             fetchDataEtang();
             fetchDataTurbine();
           });
-      },
-      child: const Icon(Icons.refresh),
+        },
+        child: const Icon(Icons.refresh),
       ),
       bottomNavigationBar: wideScreen
           ? null
@@ -260,7 +278,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  bool wsConnected = false;
   bool wsPressed = false;
 
   @override
@@ -277,7 +294,7 @@ class _SettingsState extends State<Settings> {
         Card(
           child: ListTile(
             title: const Text('Websocket'),
-            subtitle: Text('connected $wsConnected pressed $wsPressed'),
+            subtitle: Text('connected ${global.ws} pressed $wsPressed'),
             selected: wsPressed,
             leading: const Icon(Icons.online_prediction),
             onTap: () {
@@ -286,10 +303,31 @@ class _SettingsState extends State<Settings> {
               });
             },
             trailing: Switch(
-              value: wsConnected,
+              value: global.ws,
               onChanged: (value) {
                 setState(() {
-                  wsConnected = value;
+                  global.ws = value;
+                });
+              },
+            ),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: const Text('Websocket class'),
+            subtitle: Text('connected ${global.wsTest.enable} pressed $wsPressed'),
+            selected: wsPressed,
+            leading: const Icon(Icons.online_prediction),
+            onTap: () {
+              setState(() {
+                wsPressed = !wsPressed;
+              });
+            },
+            trailing: Switch(
+              value: global.wsTest.enable,
+              onChanged: (value) {
+                setState(() {
+                  global.wsTest.toggle();
                 });
               },
             ),
@@ -308,7 +346,9 @@ class _SettingsState extends State<Settings> {
                       });
                     },
                     child: const Text('Light')),
-                const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -316,7 +356,9 @@ class _SettingsState extends State<Settings> {
                       });
                     },
                     child: const Text('Dark')),
-                const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -333,13 +375,18 @@ class _SettingsState extends State<Settings> {
   }
 }
 
-class Modes extends StatelessWidget {
-  const Modes({
-    super.key,
-    required this.boxDecoration,
-  });
+class Modes extends StatefulWidget {
+  const Modes({ super.key, required this.boxDecoration});
 
   final BoxDecoration boxDecoration;
+  @override
+  State<Modes> createState() => _ModesState();
+}
+
+class _ModesState extends State<Modes> {
+  int selected = -1;
+
+  List<String> name = <String>["Manu", "Basic", "PID"];
 
   @override
   Widget build(BuildContext context) {
@@ -348,57 +395,44 @@ class Modes extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Expanded(
-                    child: Row(
+              child: ListView.separated(
+            padding: const EdgeInsets.all(8),
+            itemCount: name.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selected = index;
+                  });
+                },
+                child: Row(
                   children: [
                     Expanded(
                       child: Container(
+                          color: selected == index
+                              ? Colors.blueAccent
+                              : Colors.amber,
                           padding: const EdgeInsets.all(10),
-                          decoration: boxDecoration,
-                          child: const Text("Manouelle")),
+                          //decoration: widget.boxDecoration,
+                          child: Text(name[index])),
                     ),
                   ],
-                )),
-                Expanded(
-                    child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: boxDecoration,
-                          child: const Text("basic")),
-                    ),
-                  ],
-                )),
-                Expanded(
-                    child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: boxDecoration,
-                          child: const Text("PID")),
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
+                ),
+              );
+            },
+          )),
           Expanded(
             flex: 3,
-            child: Container(
-              decoration: boxDecoration,
-              child: SizedBox(
-                  height: 500,
-                  //width: 600,
-                  child: Slider(
-                    value: 0.50,
-                    onChanged: (value) {},
-                  )),
-            ),
+            
+            child: SizedBox(
+                height: 500,
+                //width: 600,
+                
+                child: Slider(
+                  value: 0.50,
+                  onChanged: (value) {},
+                )),
           )
         ],
       ),
