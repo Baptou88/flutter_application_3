@@ -50,16 +50,16 @@ jobs:
           name: release-apk
           path: build/app/outputs/apk/release/app-release.apk
 
-      # - name: Upload to release
-      #   uses: JasonEtco/upload-to-release@master
-      #   with:
-      #     args: build/app/outputs/apk/release/app-release.apk
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: Shopify/upload-to-release@master
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
         with:
-          name: my-artifact
-          path: build/app/outputs/apk/release/app-release.apk
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          #content-type: text/plain # Optional
+          args: build/app/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - uses: Shopify/upload-to-release@master
+      #   with:
+      #     name: my-artifact
+      #     path: build/app/outputs/apk/release/app-release.apk
+      #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+      #     #content-type: text/plain # Optional
