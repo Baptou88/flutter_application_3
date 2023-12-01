@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+
+
 import 'global.dart' as global;
 import 'package:flutter_application_3/models/data_turbine.dart';
 import 'package:http/http.dart' as http;
@@ -56,8 +59,6 @@ Future<DataEtang> fetchDataEtang() async {
   final response =
       await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'));
 
-  log(response.statusCode.toString());
-
   if (response.statusCode == 200) {
     return DataEtang.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
@@ -69,8 +70,6 @@ Future<DataEtang> fetchDataEtang() async {
 Future<DataTurbine> fetchDataTurbine() async {
   final response =
       await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataTurbine/'));
-
-  log(response.statusCode.toString());
 
   if (response.statusCode == 200) {
     return DataTurbine.fromJson(
@@ -85,6 +84,8 @@ class _MainPageState extends State<MainPage> {
   int selectedIndex = 0;
   late Future<DataEtang> futureDataEtang;
   late Future<DataTurbine> futureDataTurbine;
+
+  final _channel = global.wsTest.channel;
 
   @override
   void didChangeDependencies() {
@@ -109,6 +110,7 @@ class _MainPageState extends State<MainPage> {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(width: 2, color: Theme.of(context).primaryColor));
 
+    //log((global.wsTest == null).toString());
     switch (selectedIndex) {
       case 0:
         page = Column(
@@ -117,17 +119,29 @@ class _MainPageState extends State<MainPage> {
           children: [
             Text('Hello World ! wideScreen:${wideScreen.toString()}'),
             const Divider(),
+            
             StreamBuilder(
-              stream: global.wsTest.channel.stream,
-              builder: (context,snapshot){
-                if (snapshot.hasData) {
-                  return Text(snapshot.data);
-                } else if (snapshot.hasError){
-                  return Text(snapshot.error.toString());
-                } else {
-                  return const Text('error ws');
-                }
-            }),
+                stream: _channel.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasData) {
+                    return Text(snapshot.data);
+                  } else if (snapshot.hasError) {
+                    return Text(snapshot.error.toString());
+                  } else {
+                    return const Text('error ws');
+                  }
+                }),
+            const Divider(),
+            ElevatedButton(onPressed: () {
+              setState(() {
+                global.wsTest.toggle();
+              });
+            }, child: const Text("togglr")),
             const Divider(),
             FutureBuilder<DataEtang>(
               future: futureDataEtang,
@@ -212,8 +226,9 @@ class _MainPageState extends State<MainPage> {
         page = Modes(boxDecoration: boxDecoration);
         break;
       case 2:
-        page = ListView.builder(
+        page = ListView.separated(
             itemCount: progTasks.length,
+            separatorBuilder: (context, index) { return const Divider();},
             itemBuilder: (context, index) {
               return ProgTaskWidget(task: progTasks[index]);
             });
@@ -267,6 +282,12 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _channel.sink.close();
+  }
 }
 
 class Settings extends StatefulWidget {
@@ -315,7 +336,8 @@ class _SettingsState extends State<Settings> {
         Card(
           child: ListTile(
             title: const Text('Websocket class'),
-            subtitle: Text('connected ${global.wsTest.enable} pressed $wsPressed'),
+            subtitle:
+                Text('connected ${global.wsTest.enable} pressed $wsPressed'),
             selected: wsPressed,
             leading: const Icon(Icons.online_prediction),
             onTap: () {
@@ -376,7 +398,7 @@ class _SettingsState extends State<Settings> {
 }
 
 class Modes extends StatefulWidget {
-  const Modes({ super.key, required this.boxDecoration});
+  const Modes({super.key, required this.boxDecoration});
 
   final BoxDecoration boxDecoration;
   @override
@@ -424,11 +446,10 @@ class _ModesState extends State<Modes> {
           )),
           Expanded(
             flex: 3,
-            
             child: SizedBox(
                 height: 500,
                 //width: 600,
-                
+
                 child: Slider(
                   value: 0.50,
                   onChanged: (value) {},
