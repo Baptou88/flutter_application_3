@@ -64,10 +64,16 @@ jobs:
       #     repo-token: ${{ secrets.GITHUB_TOKEN }}
       #     #content-type: text/plain # Optional
 
-      - name: Setup semantic-release
-        run: npm install
+      # - name: Setup semantic-release
+      #   run: npm install
 
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm exec semantic-release
+      # - name: Release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: npm exec semantic-release
+
+      - name: Releasing using Hub
+      uses: r0user/release-apk@main
+      env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       APP_FOLDER: app
