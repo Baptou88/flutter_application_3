@@ -44,12 +44,25 @@ jobs:
         run: flutter build appbundle
 
       - run: flutter build apk
-
+      # - run: flutter build apk --release --split-per-abi
       - uses: actions/upload-artifact@v1
         with:
           name: release-apk
           path: build/app/outputs/apk/release/app-release.apk
 
+      - name: Fetch action
+        id: pl
+        uses: Rishabh510/Path-lister-action@master
+        with:
+          path: "build/app/outputs/apk/release/"
+          #type: ".yml"
+
+      - name: Output results
+        run: |
+          echo "Found ${{ steps.pl.outputs.path_count }} file(s) with this extension:"
+          for i in ${{ steps.pl.outputs.paths }}; do
+          echo $i
+          done
       # - name: Upload to release
       #   uses: JasonEtco/upload-to-release@master
       #   with:
@@ -72,8 +85,8 @@ jobs:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #   run: npm exec semantic-release
 
-      - name: Releasing using Hub
-        uses: r0user/release-apk@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APP_FOLDER: app
+      # - name: Releasing using Hub
+      #   uses: r0user/release-apk@main
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     APP_FOLDER: app
