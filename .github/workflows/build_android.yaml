@@ -2,21 +2,22 @@ name: Android Release
 
 # 1
 on:
-  # 2
-  # push:
-  #   branches: [ "master" ]
-  # pull_request:
-  #   branches: [ "master" ]
-  release:
-    branches: [ "master" ]
-  # 3
   workflow_dispatch:
+  
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  # release:
+  #   branches: [ "master" ]
+  # 3
 
 # 4
 jobs:
   # 5
-  build:
-  #release:
+  #build:
+  release:
+    name: Realase
     # 6
     runs-on: ubuntu-latest
 
@@ -63,12 +64,12 @@ jobs:
           for i in ${{ steps.pl.outputs.paths }}; do
           echo $i
           done
-      - name: Upload to release
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: ./build/app/outputs/apk/release/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      # - name: Upload to release
+      #   uses: JasonEtco/upload-to-release@master
+      #   with:
+      #     args: ./build/app/outputs/apk/release/app-release.apk
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # - uses: Shopify/upload-to-release@master
@@ -78,13 +79,17 @@ jobs:
       #     repo-token: ${{ secrets.GITHUB_TOKEN }}
       #     #content-type: text/plain # Optional
 
-      # - name: Setup semantic-release
-      #   run: npm install
+      - name: Setup semantic-release
+        run: npm install
 
-      # - name: Release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: npm exec semantic-release
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: npm exec semantic-release
+      - name: Release2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm exec semantic-release
 
       # - name: Releasing using Hub
       #   uses: r0user/release-apk@main
