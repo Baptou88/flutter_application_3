@@ -1,7 +1,6 @@
-
-
-
 import 'package:flutter_application_3/home_page.dart';
+import 'package:flutter_application_3/providers/ws.dart';
+
 
 import 'global.dart' as global;
 
@@ -14,12 +13,20 @@ import 'package:flutter_application_3/models/programmated_task.dart';
 
 
 void main() {
-  runApp(const MainApp());
+  // final channel = WebSocketChannel.connect(Uri.parse("ws://hydro.hydro-babiat.ovh/ws"));
+  // channel.stream.listen((event) {
+  //   log(event);
+  // },
+  // onError: (error) => log(error),
+  // onDone: () => log("done"),
+  // );
+  runApp(MainApp());
+  //channel.sink.close();
 }
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
-
+   MainApp({super.key});
+   final Ws _provider = Ws();
   @override
   State<MainApp> createState() => _MainAppState();
 }
@@ -43,14 +50,16 @@ class _MainAppState extends State<MainApp> {
         darkTheme: ThemeData(colorScheme: const ColorScheme.dark()),
         home: MainPage(
           themMode: setThemeMode,
+          provider: widget._provider,
         ));
   }
 }
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key, required this.themMode});
+  const MainPage({super.key, required this.themMode, required this.provider});
   final Function(ThemeMode) themMode;
-
+  final Ws provider;
+  
   @override
   State<MainPage> createState() => _MainPageState();
 }
@@ -61,10 +70,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   bool wideScreen = false;
-  int selectedIndex = 0;
+  int selectedIndex = 0; 
 
-
-  final _channel = global.wsTest.channel;
 
   @override
   void didChangeDependencies() {
@@ -91,7 +98,7 @@ class _MainPageState extends State<MainPage> {
     //log((global.wsTest == null).toString());
     switch (selectedIndex) {
       case 0:
-        page = HomePage(wideScreen: wideScreen,);
+        page = HomePage(wideScreen: wideScreen,provider: widget.provider);
         break;
       case 1:
         page = Modes(boxDecoration: boxDecoration);
@@ -157,7 +164,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-    _channel.sink.close();
   }
 }
 
@@ -204,28 +210,7 @@ class _SettingsState extends State<Settings> {
             ),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: const Text('Websocket class'),
-            subtitle:
-                Text('connected ${global.wsTest.enable} pressed $wsPressed'),
-            selected: wsPressed,
-            leading: const Icon(Icons.online_prediction),
-            onTap: () {
-              setState(() {
-                wsPressed = !wsPressed;
-              });
-            },
-            trailing: Switch(
-              value: global.wsTest.enable,
-              onChanged: (value) {
-                setState(() {
-                  global.wsTest.toggle();
-                });
-              },
-            ),
-          ),
-        ),
+        
         Card(
           child: ListTile(
             title: const Text('ThemeMode'),
