@@ -1,25 +1,32 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
+import 'package:flutter_application_3/home_page.dart';
+import 'package:flutter_application_3/providers/ws.dart';
 
 
 import 'global.dart' as global;
-import 'package:flutter_application_3/models/data_turbine.dart';
-import 'package:http/http.dart' as http;
+
+
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/destinations.dart';
 import 'package:flutter_application_3/models/programmated_task.dart';
 
-import 'models/data_etang.dart';
+
 
 void main() {
-  runApp(const MainApp());
+  // final channel = WebSocketChannel.connect(Uri.parse("ws://hydro.hydro-babiat.ovh/ws"));
+  // channel.stream.listen((event) {
+  //   log(event);
+  // },
+  // onError: (error) => log(error),
+  // onDone: () => log("done"),
+  // );
+  runApp(MainApp());
+  //channel.sink.close();
 }
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
-
+   MainApp({super.key});
+   final Ws _provider = Ws();
   @override
   State<MainApp> createState() => _MainAppState();
 }
@@ -43,49 +50,28 @@ class _MainAppState extends State<MainApp> {
         darkTheme: ThemeData(colorScheme: const ColorScheme.dark()),
         home: MainPage(
           themMode: setThemeMode,
+          provider: widget._provider,
         ));
   }
 }
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key, required this.themMode});
+  const MainPage({super.key, required this.themMode, required this.provider});
   final Function(ThemeMode) themMode;
-
+  final Ws provider;
+  
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
-Future<DataEtang> fetchDataEtang() async {
-  final response =
-      await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'));
 
-  if (response.statusCode == 200) {
-    return DataEtang.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>);
-  } else {
-    throw Exception('Failed to Load data Etang');
-  }
-}
 
-Future<DataTurbine> fetchDataTurbine() async {
-  final response =
-      await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataTurbine/'));
 
-  if (response.statusCode == 200) {
-    return DataTurbine.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>);
-  } else {
-    throw Exception('Failed to Load data Etang');
-  }
-}
 
 class _MainPageState extends State<MainPage> {
   bool wideScreen = false;
-  int selectedIndex = 0;
-  late Future<DataEtang> futureDataEtang;
-  late Future<DataTurbine> futureDataTurbine;
+  int selectedIndex = 0; 
 
-  final _channel = global.wsTest.channel;
 
   @override
   void didChangeDependencies() {
@@ -98,8 +84,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    futureDataEtang = fetchDataEtang();
-    futureDataTurbine = fetchDataTurbine();
+
   }
 
   @override
@@ -113,114 +98,7 @@ class _MainPageState extends State<MainPage> {
     //log((global.wsTest == null).toString());
     switch (selectedIndex) {
       case 0:
-        page = Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text('Hello World ! wideScreen:${wideScreen.toString()}'),
-            const Divider(),
-            
-            StreamBuilder(
-                stream: _channel.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasData) {
-                    return Text(snapshot.data);
-                  } else if (snapshot.hasError) {
-                    return Text(snapshot.error.toString());
-                  } else {
-                    return const Text('error ws');
-                  }
-                }),
-            const Divider(),
-            ElevatedButton(onPressed: () {
-              setState(() {
-                global.wsTest.toggle();
-              });
-            }, child: const Text("togglr")),
-            const Divider(),
-            FutureBuilder<DataEtang>(
-              future: futureDataEtang,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Column(
-                    children: [
-                      Text(snapshot.data!.niveauEtangP.toString()),
-                      Text(snapshot.data!.niveauEtang.toString()),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: LinearProgressIndicator(
-                          value: snapshot.data!.niveauEtangP / 100,
-                          semanticsLabel: 'Linear progress indicator',
-                        ),
-                      )
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  log('${snapshot.error}');
-
-                  return Text('${snapshot.error}');
-                }
-                return const CircularProgressIndicator();
-              },
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    futureDataEtang = fetchDataEtang();
-                  });
-                },
-                child: const Text('refresh')),
-            FutureBuilder<DataTurbine>(
-              future: futureDataTurbine,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Column(
-                    children: [
-                      Text(snapshot.data!.positionVanne.toString()),
-                      Text(snapshot.data!.positionVanneTarget.toString()),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: LinearProgressIndicator(
-                          value: snapshot.data!.positionVanne / 100,
-                          semanticsLabel: 'Linear progress indicator',
-                        ),
-                      ),
-                      Slider(
-                          value: snapshot.data!.positionVanneTarget,
-                          divisions: 100,
-                          label: snapshot.data!.positionVanneTarget.toString(),
-                          min: 0,
-                          max: 100,
-                          onChanged: (double value) {
-                            setState(() {
-                              snapshot.data!.positionVanneTarget = value;
-                            });
-                          })
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  log('${snapshot.error}');
-
-                  return Text('${snapshot.error}');
-                }
-                return const CircularProgressIndicator();
-              },
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    futureDataTurbine = fetchDataTurbine();
-                  });
-                },
-                child: const Text('refresh turbine')),
-            Text('ws ${global.ws}')
-          ],
-        );
+        page = HomePage(wideScreen: wideScreen,provider: widget.provider);
         break;
       case 1:
         page = Modes(boxDecoration: boxDecoration);
@@ -274,8 +152,10 @@ class _MainPageState extends State<MainPage> {
               },
             ),
           Expanded(
-            child: Center(
-              child: page,
+            child: SingleChildScrollView(
+              child: Center(
+                child: page,
+              ),
             ),
           ),
         ],
@@ -286,7 +166,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-    _channel.sink.close();
   }
 }
 
@@ -333,28 +212,7 @@ class _SettingsState extends State<Settings> {
             ),
           ),
         ),
-        Card(
-          child: ListTile(
-            title: const Text('Websocket class'),
-            subtitle:
-                Text('connected ${global.wsTest.enable} pressed $wsPressed'),
-            selected: wsPressed,
-            leading: const Icon(Icons.online_prediction),
-            onTap: () {
-              setState(() {
-                wsPressed = !wsPressed;
-              });
-            },
-            trailing: Switch(
-              value: global.wsTest.enable,
-              onChanged: (value) {
-                setState(() {
-                  global.wsTest.toggle();
-                });
-              },
-            ),
-          ),
-        ),
+        
         Card(
           child: ListTile(
             title: const Text('ThemeMode'),
