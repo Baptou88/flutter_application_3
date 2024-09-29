@@ -1,10 +1,13 @@
 import 'package:json_annotation/json_annotation.dart';
 
-//part 'data_turbine.g.dart';
+part 'data_turbine.g.dart';
+
 @JsonSerializable()
 class DataTurbine {
   final double positionVanne;
-   double positionVanneTarget;
+  
+  @JsonKey(name: "PositionVanneTarget")
+  double positionVanneTarget;
 
 
    DataTurbine({
@@ -17,12 +20,9 @@ class DataTurbine {
     positionVanneTarget = pos;
   }
 
-  factory DataTurbine.fromJson(Map<String,dynamic>json ){
-    return DataTurbine(
-      positionVanne: json['Turbine']['positionVanne'], 
-      positionVanneTarget: json['Turbine']['PositionVanneTarget']
-      );
-  }
+  factory DataTurbine.fromJson(Map<String,dynamic>json )=> _$DataTurbineFromJson(json);
+
+  Map<String,dynamic> toJson()=> _$DataTurbineToJson(this);
 
 
 }

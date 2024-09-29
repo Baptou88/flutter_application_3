@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_3/fill_level.dart';
 import 'package:flutter_application_3/models/ws_data.dart';
 import 'package:flutter_application_3/providers/ws.dart';
 import 'global.dart' as global;
@@ -10,9 +11,11 @@ import 'package:http/http.dart' as http;
 import 'models/data_turbine.dart';
 
 Future<DataEtang> fetchDataEtang() async {
+  log('fetch dataEtang');
   final response =
       await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataEtang/'));
 
+  log(response.body.toString());
   if (response.statusCode == 200) {
     return DataEtang.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
@@ -22,9 +25,10 @@ Future<DataEtang> fetchDataEtang() async {
 }
 
 Future<DataTurbine> fetchDataTurbine() async {
+  log('fetch dataTurbine');
   final response =
       await http.get(Uri.parse('http://hydro.hydro-babiat.ovh/dataTurbine/'));
-
+  log(response.body.toString());
   if (response.statusCode == 200) {
     return DataTurbine.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
@@ -50,10 +54,37 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     //futureDataEtang = fetchDataEtang();
     //futureDataTurbine = fetchDataTurbine();
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showMyDialog();
+    });
   }
 
- 
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Welcome'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This is a popup dialog shown on start.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Approve'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,22 +171,29 @@ class _HomePageState extends State<HomePage> {
             child: const Text('refresh turbine')),
         Text('ws ${global.ws}'),
         const Divider(),
+        const FillLevel(fillLevel: 0.50),
+        const SliderValue(),
         StreamBuilder<WsData>(
           stream: widget.provider.dataEtangStream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
+              return Center(
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(),
+                    Text('hasdata ${snapshot.hasData}'),
+                    Text('hasdata ${snapshot.connectionState}'),
+                  ],
+                ),
               );
             }
-
             if (snapshot.connectionState == ConnectionState.active &&
                 snapshot.hasData) {
               return Center(
                 child: Text(
-                  '${snapshot.data?.data}: ${snapshot.data}',
+                  'hasData: ${snapshot.hasData} ${snapshot.data?.data2.mode}: ${snapshot.data?.data2.dataEtang.niveauEtangP}',
                   style: const TextStyle(
-                    color: Color.fromARGB(255, 11, 11, 12),
+                    color: Color.fromARGB(255, 32, 32, 129),
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
                   ),
@@ -169,7 +207,7 @@ class _HomePageState extends State<HomePage> {
               );
             }
             if (snapshot.hasError) {
-              return  Center(
+              return Center(
                 child: Text(snapshot.error.toString()),
               );
             }
@@ -180,5 +218,67 @@ class _HomePageState extends State<HomePage> {
         )
       ],
     );
+  }
+}
+
+class SliderValue extends StatefulWidget {
+  const SliderValue({
+    super.key,
+  });
+
+  @override
+  State<SliderValue> createState() => _SliderValueState();
+}
+
+class _SliderValueState extends State<SliderValue> {
+  double _value = 0;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: "er");
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      Slider(
+        value: _value,
+        min: 0,
+        max: 100,
+        divisions: 100,
+        label: _value.round().toString(),
+        onChanged: (value) {
+          setState(() {
+            _value = value;
+          });
+        },
+      ),
+      Text('value: $_value'),
+      SizedBox(
+        width: 120,
+        child: TextField(
+          controller: _controller,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Test',
+          ),
+          onSubmitted: (String newvalue) {
+            if (newvalue.isNotEmpty) {
+              log("par ici $newvalue");
+              _value = double.parse(newvalue);
+              
+            }
+          },
+        ),
+      )
+    ]);
   }
 }

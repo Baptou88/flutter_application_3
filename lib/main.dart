@@ -152,8 +152,10 @@ class _MainPageState extends State<MainPage> {
               },
             ),
           Expanded(
-            child: Center(
-              child: page,
+            child: SingleChildScrollView(
+              child: Center(
+                child: page,
+              ),
             ),
           ),
         ],

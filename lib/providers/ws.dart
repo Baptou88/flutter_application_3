@@ -17,7 +17,7 @@ class Ws {
   Stream<WsData> get dataEtangStream => stream
   
   .map<WsData>((event) {
-        //log('map $event');
+        log('ws map $event');
 
         //var data = event?['data'];
         //log('data $data');
