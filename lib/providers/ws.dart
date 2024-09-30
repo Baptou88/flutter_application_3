@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_application_3/global.dart';
 import 'package:flutter_application_3/models/ws_data.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
@@ -31,6 +32,7 @@ class Ws {
       channel = WebSocketChannel.connect(wsUrl);
     }
     enable = true;
+    ws = true;
     log('Ws Enaled');
   }
 
@@ -38,6 +40,7 @@ class Ws {
     log('Ws Desactivate');
     //enable = false;
     channel.sink.close(status.goingAway);
+    ws = false;
   }
 
   void toggle() {

@@ -152,10 +152,8 @@ class _MainPageState extends State<MainPage> {
               },
             ),
           Expanded(
-            child: SingleChildScrollView(
-              child: Center(
-                child: page,
-              ),
+            child: Center(
+              child: page,
             ),
           ),
         ],
@@ -184,11 +182,16 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        const Card(
+        Card(
           child: ListTile(
-            title: Text('Toggle Led'),
-            subtitle: Text("tese"),
-            leading: FlutterLogo(duration: Duration(milliseconds: 500)),
+            title: const Text('Toggle Led'),
+            subtitle: const Text("tese"),
+            leading: const FlutterLogo(duration: Duration(milliseconds: 500)),
+            onTap: () {
+              setState(() {
+                
+              });
+            },
           ),
         ),
         Card(

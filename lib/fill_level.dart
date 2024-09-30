@@ -56,6 +56,7 @@ class _FillLevelState extends State<FillLevel> {
                 //border: Border.all(color: Colors.black, width: 2.0),
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(10),
+                  top: Radius.circular(10)
                 ),
               ),
             ),

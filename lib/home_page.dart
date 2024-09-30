@@ -183,7 +183,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     const CircularProgressIndicator(),
                     Text('hasdata ${snapshot.hasData}'),
-                    Text('hasdata ${snapshot.connectionState}'),
+                    Text('connection state: ${snapshot.connectionState}'),
                   ],
                 ),
               );
@@ -191,13 +191,23 @@ class _HomePageState extends State<HomePage> {
             if (snapshot.connectionState == ConnectionState.active &&
                 snapshot.hasData) {
               return Center(
-                child: Text(
-                  'hasData: ${snapshot.hasData} ${snapshot.data?.data2.mode}: ${snapshot.data?.data2.dataEtang.niveauEtangP}',
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 32, 32, 129),
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  children: [
+                    FillLevel(fillLevel: snapshot.data!.data2.dataEtang.niveauEtangP),
+                    Text(
+                      'hasData: ${snapshot.hasData} ${snapshot.data?.data2.mode}: ${snapshot.data?.data2.dataEtang.niveauEtangP}',
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 32, 32, 129),
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text('tacky : ${snapshot.data?.data2.dataTurbine.tacky} rpm'),
+                    Text('I : ${snapshot.data?.data2.dataTurbine.intensite} A'),
+                    Text('U : ${snapshot.data?.data2.dataTurbine.tension} V'),
+                    Text('Vanne : ${snapshot.data?.data2.dataTurbine.positionVanne} %'),
+                    Text('Target : ${snapshot.data?.data2.dataTurbine.positionVanneTarget} %'),
+                  ],
                 ),
               );
             }
