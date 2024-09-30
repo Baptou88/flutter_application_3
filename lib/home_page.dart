@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_3/fill_level.dart';
 import 'package:flutter_application_3/models/ws_data.dart';
 import 'package:flutter_application_3/providers/ws.dart';
+import 'package:flutter_application_3/widgets/slider_value.dart';
 import 'global.dart' as global;
 import 'models/data_etang.dart';
 import 'package:http/http.dart' as http;
@@ -221,64 +222,4 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class SliderValue extends StatefulWidget {
-  const SliderValue({
-    super.key,
-  });
 
-  @override
-  State<SliderValue> createState() => _SliderValueState();
-}
-
-class _SliderValueState extends State<SliderValue> {
-  double _value = 0;
-  late TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: "er");
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      Slider(
-        value: _value,
-        min: 0,
-        max: 100,
-        divisions: 100,
-        label: _value.round().toString(),
-        onChanged: (value) {
-          setState(() {
-            _value = value;
-          });
-        },
-      ),
-      Text('value: $_value'),
-      SizedBox(
-        width: 120,
-        child: TextField(
-          controller: _controller,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Test',
-          ),
-          onSubmitted: (String newvalue) {
-            if (newvalue.isNotEmpty) {
-              log("par ici $newvalue");
-              _value = double.parse(newvalue);
-              
-            }
-          },
-        ),
-      )
-    ]);
-  }
-}
