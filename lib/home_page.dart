@@ -55,9 +55,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     //futureDataEtang = fetchDataEtang();
     //futureDataTurbine = fetchDataTurbine();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showMyDialog();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _showMyDialog();
+    // });
   }
 
   Future<void> _showMyDialog() async {
