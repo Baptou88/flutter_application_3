@@ -156,12 +156,13 @@ class _MainPageState extends State<MainPage> {
         page = Modes(boxDecoration: boxDecoration);
         break;
       case 2:
-        page = ListView.separated(
-            itemCount: progTasks.length,
-            separatorBuilder: (context, index) { return const Divider();},
-            itemBuilder: (context, index) {
-              return ProgTaskWidget(task: progTasks[index]);
-            });
+        // page = ListView.separated(
+        //     itemCount: progTasks.length,
+        //     separatorBuilder: (context, index) { return const Divider();},
+        //     itemBuilder: (context, index) {
+        //       return ProgTaskWidget(task: progTasks[index]);
+        //     });
+        page =  const ProgTaskListWidget();
         break;
 
       case 3:

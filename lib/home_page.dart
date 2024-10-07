@@ -89,145 +89,180 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text('Hello World ! wideScreen:${widget.wideScreen.toString()}'),
-        const Divider(),
-        // FutureBuilder<DataEtang>(
-        //   future: futureDataEtang,
-        //   builder: (context, snapshot) {
-        //     if (snapshot.hasData) {
-        //       return Column(
-        //         children: [
-        //           Text(snapshot.data!.niveauEtangP.toString()),
-        //           Text(snapshot.data!.niveauEtang.toString()),
-        //           Padding(
-        //             padding: const EdgeInsets.all(8.0),
-        //             child: LinearProgressIndicator(
-        //               value: snapshot.data!.niveauEtangP / 100,
-        //               semanticsLabel: 'Linear progress indicator',
-        //             ),
-        //           )
-        //         ],
-        //       );
-        //     } else if (snapshot.hasError) {
-        //       log('${snapshot.error}');
-
-        //       return Text('${snapshot.error}');
-        //     }
-        //     return const CircularProgressIndicator();
-        //   },
-        // ),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                futureDataEtang = fetchDataEtang();
-              });
-            },
-            child: const Text('refresh')),
-        // FutureBuilder<DataTurbine>(
-        //   future: futureDataTurbine,
-        //   builder: (context, snapshot) {
-        //     if (snapshot.hasData) {
-        //       return Column(
-        //         children: [
-        //           Text(snapshot.data!.positionVanne.toString()),
-        //           Text(snapshot.data!.positionVanneTarget.toString()),
-        //           Padding(
-        //             padding: const EdgeInsets.all(8.0),
-        //             child: LinearProgressIndicator(
-        //               value: snapshot.data!.positionVanne / 100,
-        //               semanticsLabel: 'Linear progress indicator',
-        //             ),
-        //           ),
-        //           Slider(
-        //               value: snapshot.data!.positionVanneTarget,
-        //               divisions: 100,
-        //               label: snapshot.data!.positionVanneTarget.toString(),
-        //               min: 0,
-        //               max: 100,
-        //               onChanged: (double value) {
-        //                 setState(() {
-        //                   snapshot.data!.positionVanneTarget = value;
-        //                 });
-        //               })
-        //         ],
-        //       );
-        //     } else if (snapshot.hasError) {
-        //       log('${snapshot.error}');
-
-        //       return Text('${snapshot.error}');
-        //     }
-        //     return const CircularProgressIndicator();
-        //   },
-        // ),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                futureDataTurbine = fetchDataTurbine();
-              });
-            },
-            child: const Text('refresh turbine')),
-        Text('ws ${global.ws}'),
-        const Divider(),
-        const FillLevel(fillLevel: 0.50),
-        const SliderValue(),
-        StreamBuilder<WsData>(
-          stream: widget.provider.dataEtangStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: Column(
-                  children: [
-                    const CircularProgressIndicator(),
-                    Text('hasdata ${snapshot.hasData}'),
-                    Text('connection state: ${snapshot.connectionState}'),
-                  ],
-                ),
-              );
-            }
-            if (snapshot.connectionState == ConnectionState.active &&
-                snapshot.hasData) {
-              return Center(
-                child: Column(
-                  children: [
-                    FillLevel(fillLevel: snapshot.data!.data2.dataEtang.niveauEtangP),
-                    Text(
-                      'hasData: ${snapshot.hasData} ${snapshot.data?.data2.mode}: ${snapshot.data?.data2.dataEtang.niveauEtangP}',
-                      style: const TextStyle(
-                        color: Color.fromARGB(255, 32, 32, 129),
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('Hello World ! wideScreen:${widget.wideScreen.toString()}'),
+          const Divider(),
+          // FutureBuilder<DataEtang>(
+          //   future: futureDataEtang,
+          //   builder: (context, snapshot) {
+          //     if (snapshot.hasData) {
+          //       return Column(
+          //         children: [
+          //           Text(snapshot.data!.niveauEtangP.toString()),
+          //           Text(snapshot.data!.niveauEtang.toString()),
+          //           Padding(
+          //             padding: const EdgeInsets.all(8.0),
+          //             child: LinearProgressIndicator(
+          //               value: snapshot.data!.niveauEtangP / 100,
+          //               semanticsLabel: 'Linear progress indicator',
+          //             ),
+          //           )
+          //         ],
+          //       );
+          //     } else if (snapshot.hasError) {
+          //       log('${snapshot.error}');
+    
+          //       return Text('${snapshot.error}');
+          //     }
+          //     return const CircularProgressIndicator();
+          //   },
+          // ),
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  futureDataEtang = fetchDataEtang();
+                });
+              },
+              child: const Text('refresh')),
+          // FutureBuilder<DataTurbine>(
+          //   future: futureDataTurbine,
+          //   builder: (context, snapshot) {
+          //     if (snapshot.hasData) {
+          //       return Column(
+          //         children: [
+          //           Text(snapshot.data!.positionVanne.toString()),
+          //           Text(snapshot.data!.positionVanneTarget.toString()),
+          //           Padding(
+          //             padding: const EdgeInsets.all(8.0),
+          //             child: LinearProgressIndicator(
+          //               value: snapshot.data!.positionVanne / 100,
+          //               semanticsLabel: 'Linear progress indicator',
+          //             ),
+          //           ),
+          //           Slider(
+          //               value: snapshot.data!.positionVanneTarget,
+          //               divisions: 100,
+          //               label: snapshot.data!.positionVanneTarget.toString(),
+          //               min: 0,
+          //               max: 100,
+          //               onChanged: (double value) {
+          //                 setState(() {
+          //                   snapshot.data!.positionVanneTarget = value;
+          //                 });
+          //               })
+          //         ],
+          //       );
+          //     } else if (snapshot.hasError) {
+          //       log('${snapshot.error}');
+    
+          //       return Text('${snapshot.error}');
+          //     }
+          //     return const CircularProgressIndicator();
+          //   },
+          // ),
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  futureDataTurbine = fetchDataTurbine();
+                });
+              },
+              child: const Text('refresh turbine')),
+          Text('ws ${global.ws}'),
+          const Divider(),
+          const FillLevel(fillLevel: 0.50),
+          const SliderValue(),
+          StreamBuilder<WsData>(
+            stream: widget.provider.dataEtangStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: Column(
+                    children: [
+                      const CircularProgressIndicator(),
+                      Text('hasdata ${snapshot.hasData}'),
+                      Text('connection state: ${snapshot.connectionState}'),
+                    ],
+                  ),
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.active &&
+                  snapshot.hasData) {
+                return Center(
+                  child: Column(
+                    children: [
+                      FillLevel(fillLevel: snapshot.data!.data2.dataEtang.niveauEtangP),
+                      Text(
+                        'hasData: ${snapshot.hasData} ${snapshot.data?.data2.mode}: ${snapshot.data?.data2.dataEtang.niveauEtangP}',
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 32, 32, 129),
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text('tacky : ${snapshot.data?.data2.dataTurbine.tacky} rpm'),
-                    Text('I : ${snapshot.data?.data2.dataTurbine.intensite} A'),
-                    Text('U : ${snapshot.data?.data2.dataTurbine.tension} V'),
-                    Text('Vanne : ${snapshot.data?.data2.dataTurbine.positionVanne} %'),
-                    Text('Target : ${snapshot.data?.data2.dataTurbine.positionVanneTarget} %'),
+                      Text('tacky : ${snapshot.data?.data2.dataTurbine.tacky} rpm'),
+                      Text('I : ${snapshot.data?.data2.dataTurbine.intensite} A'),
+                      Text('U : ${snapshot.data?.data2.dataTurbine.tension} V'),
+                      Text('Vanne : ${snapshot.data?.data2.dataTurbine.positionVanne} %'),
+                      Text('Target : ${snapshot.data?.data2.dataTurbine.positionVanneTarget} %'),
+                      Column(
+                        children: [
+                          Row(children: [
+                            const Text("Notification"),
+                            Checkbox(value: (snapshot.data!.data2.notification == 0) ?false:true, onChanged: (bool ?value) {
+                              if (value == null) {
+                                return;
+                              }
+                              widget.provider.send("Notification=${value?'true':'false'}");
+                              
+                            },)
+                          ],),
+                          Row(children: [
+                            const Text("Notification Group"),
+                            Switch(value: (snapshot.data!.data2.notificationGroup == 0) ?false:true, onChanged: (bool ?value) {
+                              if (value == null) {
+                                return;
+                              }
+                              log('switch : $value');
+                              widget.provider.send("NotificationGroup=${value?'true':'false'}");
+                              
+                            }),
+                            
+                          ],),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              }
+    
+              if (snapshot.connectionState == ConnectionState.done) {
+                return const Center(
+                  child: Text('No more data'),
+                );
+              }
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }
+              return  Center(
+                child: Column(
+                  children: [
+                    const Text('No data'),
+                    ElevatedButton(onPressed: () {
+                      widget.provider.enable;
+                    }, child: const Text('Reload'))
                   ],
                 ),
               );
-            }
-
-            if (snapshot.connectionState == ConnectionState.done) {
-              return const Center(
-                child: Text('No more data'),
-              );
-            }
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(snapshot.error.toString()),
-              );
-            }
-            return const Center(
-              child: Text('No data'),
-            );
-          },
-        )
-      ],
+            },
+          )
+        ],
+      ),
     );
   }
 }

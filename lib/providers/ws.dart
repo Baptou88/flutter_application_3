@@ -51,4 +51,12 @@ class Ws {
       activate();
     }
   }
+
+  void send(String msg) {
+    if (!enable) {
+      log("websocket inactive");
+    }
+
+    channel.sink.add(msg);
+  }
 }
