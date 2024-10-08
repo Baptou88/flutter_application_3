@@ -18,4 +18,5 @@ Map<String, dynamic> _$ProgTaskToJson(ProgTask instance) => <String, dynamic>{
       'active': instance.active,
       'targetVanne': instance.targetVanne,
       'time': const MyJsonConverter().toJson(instance.time),
+      'id': instance.id,
     };

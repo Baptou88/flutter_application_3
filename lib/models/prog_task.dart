@@ -37,6 +37,9 @@ class ProgTask {
   @MyJsonConverter()
   TimeOfDay time;
 
+@JsonKey(includeFromJson: false, includeToJson: true)
+  int id = 0 ;
+
   // factory ProgTask.fromJson(Map<String, dynamic> json) {
     
   //   return ProgTask(

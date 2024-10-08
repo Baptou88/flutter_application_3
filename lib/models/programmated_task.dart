@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_3/models/prog_task.dart';
 import 'package:http/http.dart' as http;
@@ -15,26 +17,40 @@ Future<List<ProgTask>> fetchTasks() async {
       .get(Uri.parse('http://hydro.hydro-babiat.ovh/programmateurJson'));
   log("par ici1");
 
-  if (response.statusCode != 200) {
-    
-  }
+  if (response.statusCode != 200) {}
   final body = json.decode(response.body);
   final List tasks = body["tasks"];
   log("par ici");
-  List<ProgTask> temp = tasks.map((e) => ProgTask.fromJson(e)).toList();
-  return temp;
+  //List<ProgTask> temp = tasks.map((e) => ProgTask.fromJson(e)).toList();
+  List<ProgTask> temp = List.empty(growable: true);
+  tasks.asMap().forEach((key, value) {
+    ProgTask t = ProgTask.fromJson(value);
+    t.id = key;
+    temp.add(t);
+  });
+  return temp.toList();
 }
 
-Future<http.Response> updateTask(ProgTask task, int index)  {
-  return  http.post(
-    Uri.parse('http://hydro.hydro-babiat.ovh/updateprogrammateur'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'title': 'title',
-    }),
-    );
+Future<Response> updateTask(ProgTask task) {
+  final dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 3),
+    ),
+  );
+  return dio.post("http://hydro.hydro-babiat.ovh/updateprogrammateur",
+      data: task.toJson(),
+      options: Options(
+          contentType: ContentType.parse("application/x-www-form-urlencoded")
+              .toString()));
+  // return  http.post(
+  //   Uri.parse('http://hydro.hydro-babiat.ovh/updateprogrammateur'),
+  //   headers: <String, String>{
+  //     // 'Content-Type': 'application/json; charset=UTF-8',
+  //     'Content-Type': 'application/x-www-form-urlencoded',
+  //   },
+  //   body: jsonEncode(task.toJson()),
+  //   encoding: Encoding.getByName('utf-8')
+  //   );
 }
 
 class ProgTaskListWidget extends StatefulWidget {
@@ -73,10 +89,13 @@ class _ProgTaskListWidgetState extends State<ProgTaskListWidget> {
 }
 
 Widget buildTask(List<ProgTask> tasks) {
-  return ListView.builder(
+  return ListView.separated(
+    separatorBuilder: (context, index) {
+      return const Divider();
+    },
     itemCount: tasks.length,
     itemBuilder: (context, index) {
-      return ProgTaskWidget(task: tasks[index],index:index);
+      return ProgTaskWidget(task: tasks[index], index: index);
     },
   );
 }
@@ -92,10 +111,36 @@ class ProgTaskWidget extends StatefulWidget {
 
 class _ProgTaskWidgetState extends State<ProgTaskWidget> {
   bool dirty = false;
+  bool editName = false;
+  final TextEditingController myController = TextEditingController();
+
+  final FocusNode fn = FocusNode();
+
+  @override
+  void initState() {
+    
+    super.initState();
+    myController.text = widget.task.name;
+    log(myController.text);
+  }
+
+
+  @override
+  void dispose() {
+    
+    myController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text("${widget.task.name}  dirty:$dirty"),
+      title: newMethod(editName),
+      onTap: () {
+       setState(() {
+          editName = false;
+       });
+      },
       subtitle: Column(
         children: [
           Row(
@@ -116,24 +161,32 @@ class _ProgTaskWidgetState extends State<ProgTaskWidget> {
             ],
           ),
           Row(
-          children: [
-            Builder(builder: (context) {
-              if (dirty) {
-                return ElevatedButton(
-                  onPressed: () {
-                    setState(() async {
-                      var response = await updateTask(widget.task, widget.index);
-                      if (response.statusCode == 200) {
+            children: [
+              Builder(
+                builder: (context) {
+                  if (dirty) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          updateTask(widget.task).then((value) {
+                            if (value.statusCode == 200) {
+                              log('success  ${value.data}');
 
-                        dirty = false;
-                      }
-                    });
-                }, child: const Text("update"),
-                );
-              }
-              return Container();
-            },)
-        ],)
+                              dirty = false;
+                            } else {
+                              log('erreur ${value.statusCode}');
+                            }
+                          });
+                        });
+                      },
+                      child: const Text("update"),
+                    );
+                  }
+                  return Container();
+                },
+              )
+            ],
+          )
         ],
       ),
       trailing: Switch(
@@ -146,5 +199,45 @@ class _ProgTaskWidgetState extends State<ProgTaskWidget> {
         },
       ),
     );
+  }
+
+  Widget newMethod(bool edit) {
+    return !edit ? Row(
+      children: [
+        Text(widget.task.name),
+        ElevatedButton(
+          child: const Text("Edit Name"),
+          onPressed: () {
+            setState(() {
+              editName = true;
+              fn.requestFocus();
+              //equivalent ->
+              //FocusScope.of(context).requestFocus(fn); 
+            });
+          },
+        )
+      ],
+    ) 
+    : 
+    Row(
+      children: [
+        SizedBox(
+          width: 120,
+          child: TextField(
+            focusNode: fn,
+            controller: myController,
+            onChanged: (text) {
+              setState(() {
+                dirty = true;
+                widget.task.name = text;
+              });
+            },
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Test',
+            ),
+            ),
+        )],
+          );
   }
 }
