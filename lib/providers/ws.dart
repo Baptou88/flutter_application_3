@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter_application_3/global.dart';
 import 'package:flutter_application_3/models/ws_data.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
@@ -17,7 +18,7 @@ class Ws {
   Stream<WsData> get dataEtangStream => stream
   
   .map<WsData>((event) {
-        log('ws map $event');
+        //log('ws map $event');
 
         //var data = event?['data'];
         //log('data $data');
@@ -31,6 +32,7 @@ class Ws {
       channel = WebSocketChannel.connect(wsUrl);
     }
     enable = true;
+    ws = true;
     log('Ws Enaled');
   }
 
@@ -38,6 +40,7 @@ class Ws {
     log('Ws Desactivate');
     //enable = false;
     channel.sink.close(status.goingAway);
+    ws = false;
   }
 
   void toggle() {
@@ -47,5 +50,13 @@ class Ws {
     } else {
       activate();
     }
+  }
+
+  void send(String msg) {
+    if (!enable) {
+      log("websocket inactive");
+    }
+
+    channel.sink.add(msg);
   }
 }

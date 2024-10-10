@@ -70,7 +70,7 @@ jobs:
   
           #9 Upload Artifacts
         - name: Upload Artifacts
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
             name: Releases
             path: |
@@ -91,8 +91,12 @@ jobs:
           run: |
             if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
               echo "TAG_EXISTS=true" >> $GITHUB_ENV
-            else
+              echo "TAG_EXISTS=true"
+              echo "v${{ env.VERSION}}"
+              else
               echo "TAG_EXISTS=false" >> $GITHUB_ENV
+              echo "TAG_EXISTS=false" 
+              echo "v${{ env.VERSION}}"
             fi
   
           #12 Modify Tag if it Exists

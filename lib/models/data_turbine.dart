@@ -9,11 +9,18 @@ class DataTurbine {
   @JsonKey(name: "PositionVanneTarget")
   double positionVanneTarget;
 
+  double tacky;
+
+  double tension;
+
+  double intensite;
 
    DataTurbine({
     required this.positionVanne,
     required this.positionVanneTarget,
-
+    required this.intensite,
+    required this.tension,
+    required this.tacky
   });
 
   setPos(double pos){

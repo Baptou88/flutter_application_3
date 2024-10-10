@@ -1,3 +1,5 @@
+
+import 'package:flutter_application_3/app_version_checker.dart';
 import 'package:flutter_application_3/home_page.dart';
 import 'package:flutter_application_3/providers/ws.dart';
 
@@ -33,6 +35,13 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   ThemeMode themeMode = ThemeMode.system;
+
+    @override
+  void initState() {
+    super.initState();
+    
+  }
+
 
   void setThemeMode(ThemeMode mode) {
     setState(() {
@@ -72,6 +81,8 @@ class _MainPageState extends State<MainPage> {
   bool wideScreen = false;
   int selectedIndex = 0; 
 
+  final checker = AppVersionChecker(gitHub: true,currentVersion: '0.0.8');
+
 
   @override
   void didChangeDependencies() {
@@ -85,6 +96,47 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
+    checker.checkUpdate().then((value) {
+      if (value.canUpdate) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showUpdate(value);
+        });
+      }
+    });
+  }
+
+  Future<void> _showUpdate(AppVersionCheckerResult result) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Welcome'),
+          content:  SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                const Text('Update uvailable'),
+                Text(result.appUrl.toString()),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Approve'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Go'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -104,12 +156,13 @@ class _MainPageState extends State<MainPage> {
         page = Modes(boxDecoration: boxDecoration);
         break;
       case 2:
-        page = ListView.separated(
-            itemCount: progTasks.length,
-            separatorBuilder: (context, index) { return const Divider();},
-            itemBuilder: (context, index) {
-              return ProgTaskWidget(task: progTasks[index]);
-            });
+        // page = ListView.separated(
+        //     itemCount: progTasks.length,
+        //     separatorBuilder: (context, index) { return const Divider();},
+        //     itemBuilder: (context, index) {
+        //       return ProgTaskWidget(task: progTasks[index]);
+        //     });
+        page =  const ProgTaskListWidget();
         break;
 
       case 3:
@@ -152,10 +205,8 @@ class _MainPageState extends State<MainPage> {
               },
             ),
           Expanded(
-            child: SingleChildScrollView(
-              child: Center(
-                child: page,
-              ),
+            child: Center(
+              child: page,
             ),
           ),
         ],
@@ -184,11 +235,16 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        const Card(
+        Card(
           child: ListTile(
-            title: Text('Toggle Led'),
-            subtitle: Text("tese"),
-            leading: FlutterLogo(duration: Duration(milliseconds: 500)),
+            title: const Text('Toggle Led'),
+            subtitle: const Text("tese"),
+            leading: const FlutterLogo(duration: Duration(milliseconds: 500)),
+            onTap: () {
+              setState(() {
+                
+              });
+            },
           ),
         ),
         Card(
